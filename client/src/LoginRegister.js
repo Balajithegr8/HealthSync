@@ -3,6 +3,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './LoginRegister.css';
 import 'boxicons/css/boxicons.min.css'; // Importing boxicons
+import CustomToast from './CustomToast';
 
 function LoginRegister() {
   const [email, setEmail] = useState('');
@@ -14,81 +15,82 @@ function LoginRegister() {
   const [toastType, setToastType] = useState(''); // Type of toast
 
   async function registerUser(e) {
-    e.preventDefault();    
-    const res = await fetch('http://localhost:3000/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        fname,
-        lname,
-        email,
-        password,
-      }),
-    });
-    const data = await res.json();
-    console.log(data);
-
-  }
-
-  async function LoginUser(e) {
-    e.preventDefault();    
-    const res = await fetch('http://localhost:3000/login', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        email,
-        password,
-      }),
-    });
-    const data = await res.json();
-    if (data.message === 'Login Successful') {
-      toast.success('🎉 Login Successful! Redirecting to dashboard...', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        className: 'custom-toast',      // Apply custom class for transparency
-        bodyClassName: 'custom-toast-body' // Apply custom body styles
-      });
-      
-      setTimeout(() => {
-        window.location.href = '/dashboard';
-      }, 3000);  // Wait for the toast to finish before redirecting
-    } else if (data.message === 'User does not exist') {
-      toast.error('❌ Login Failed. User does not exist.', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        className: 'custom-toast',      // Apply custom class for transparency
-        bodyClassName: 'custom-toast-body' // Apply custom body styles
-      });
+    e.preventDefault();
+    if (!fname || !lname || !email || !password) {
+      setToastMessage('❌ Please fill in all fields.');
+      setToastType('error');
+      return;
     }
-    else if (data.message === 'Login Failed') {
-      toast.error('❌ Login Failed. Incorrect password.', {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        className: 'custom-toast',      // Apply custom class for transparency
-        bodyClassName: 'custom-toast-body' // Apply custom body styles
+
+    try {
+      const res = await fetch('http://localhost:3000/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          fname,
+          lname,
+          email,
+          password,
+        }),
       });
+
+      const data = await res.json();
+      setToastMessage(data.message);
+      setToastType(data.toastType);
+
+      if (data.toastType === 'success') {
+        // Clear form and switch to login
+        setFname('');
+        setLname('');
+        setEmail('');
+        setPassword('');
+        setTimeout(() => {
+          setIsLogin(true);
+        }, 3000);
+      }
+
+    } catch (error) {
+      setToastMessage('❌ Something went wrong.');
+      setToastType('error');
     }
   }
-  
+
+  const LoginUser = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password) {
+      setToastMessage('❌ Please fill in all fields.');
+      setToastType('error');
+      return;
+    }
+
+    try {
+      const res = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+
+      setToastMessage(data.message);
+      setToastType(data.toastType);
+
+      if (data.toastType === 'success') {
+        // Clear form and redirect
+        setEmail('');
+        setPassword('');
+        setTimeout(() => {
+          window.location.href = '/dashboard';
+        }, 3000);
+      }
+
+    } catch (error) {
+      setToastMessage('❌ Something went wrong.');
+      setToastType('error');
+    }
+  };
 
   const handleLogin = () => {
     setIsLogin(true);
@@ -126,29 +128,28 @@ function LoginRegister() {
           <i className="bx bx-menu" onClick={toggleMenu}></i>
         </div>
       </nav>
-      
-      <div className="form-box" >
 
-          {isLogin ?(
-            <div className={`login-container ${!isLogin ? 'active' : ''}`}>
+      <div className="form-box">
+        {isLogin ? (
+          <div className={`login-container ${!isLogin ? 'active' : ''}`}>
             <div className="top">
               <span>Don't have an account? <a href="#" onClick={handleRegister}>Sign Up</a></span>
               <header>Login</header>
             </div>
             <div className="input-box">
-              <input value= {email} 
-              onChange={(e) => setEmail(e.target.value)}
-              type="text" className="input-field" placeholder="Email" />
+              <input value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="text" className="input-field" placeholder="Email" />
               <i className="bx bx-user"></i>
             </div>
             <div className="input-box">
-              <input value= {password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password" className="input-field" placeholder="Password" />
+              <input value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password" className="input-field" placeholder="Password" />
               <i className="bx bx-lock-alt"></i>
             </div>
             <div className="input-box">
-              <input type="submit" className="submit" value="Sign In" onClick={LoginUser}/>
+              <input type="submit" className="submit" value="Sign In" onClick={LoginUser} />
             </div>
             <div className="two-col">
               <div className="one">
@@ -159,36 +160,37 @@ function LoginRegister() {
                 <label><a href="#">Forgot password?</a></label>
               </div>
             </div>
-          </div>) : (
-            <div className={`register-container ${!isLogin ? 'active' : ''}`} >
+          </div>
+        ) : (
+          <div className={`register-container ${!isLogin ? 'active' : ''}`}>
             <div className="top">
-            <span>Have an account? <a href="#" onClick={handleLogin}>Login</a></span>
+              <span>Have an account? <a href="#" onClick={handleLogin}>Login</a></span>
               <header>Sign Up</header>
             </div>
             <div className="two-forms">
               <div className="input-box">
-                <input value ={fname}
-                onChange = {(e) => setFname(e.target.value)}
-                type="text" className="input-field" placeholder="Firstname" />
+                <input value={fname}
+                  onChange={(e) => setFname(e.target.value)}
+                  type="text" className="input-field" placeholder="Firstname" />
                 <i className="bx bx-user"></i>
               </div>
               <div className="input-box">
                 <input value={lname}
-                onChange={(e) => setLname(e.target.value)} 
-                type="text" className="input-field" placeholder="Lastname" />
+                  onChange={(e) => setLname(e.target.value)}
+                  type="text" className="input-field" placeholder="Lastname" />
                 <i className="bx bx-user"></i>
               </div>
             </div>
             <div className="input-box">
-              <input value={email} 
-              onChange={(e) => setEmail(e.target.value)}
-              type="text" className="input-field" placeholder="Email" />
+              <input value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                type="text" className="input-field" placeholder="Email" />
               <i className="bx bx-envelope"></i>
             </div>
             <div className="input-box">
-              <input value ={password}
-              onChange={(e) => setPassword(e.target.value)}
-              type="password" className="input-field" placeholder="Password" />
+              <input value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                type="password" className="input-field" placeholder="Password" />
               <i className="bx bx-lock-alt"></i>
             </div>
             <div className="input-box">
@@ -204,8 +206,10 @@ function LoginRegister() {
               </div>
             </div>
           </div>
-          )}
+        )}
       </div>
+
+      <CustomToast toastMessage={toastMessage} toastType={toastType} />
       <ToastContainer />
     </div>
   );

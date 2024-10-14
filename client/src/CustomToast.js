@@ -1,74 +1,41 @@
-import React from 'react';
-import { toast, ToastContainer } from 'react-toastify';
+// CustomToast.js
+import React, { useEffect } from 'react';
+import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const CustomToast = ({ message, type = 'default' }) => {
-  
-  const displayToast = () => {
-    switch (type) {
-      case 'success':
-        toast.success(message, {
-          position: "top-right",
+const CustomToast = ({ toastMessage, toastType }) => {
+  // Automatically trigger toast when the component is rendered
+  useEffect(() => {
+    if (toastMessage) {
+      if (toastType === 'success') {
+        toast.success(toastMessage, {
+          position: 'top-right',
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
+          className: 'custom-toast',
+          bodyClassName: 'custom-toast-body',
         });
-        break;
-      case 'error':
-        toast.error(message, {
-          position: "top-right",
+      } else if (toastType === 'error') {
+        toast.error(toastMessage, {
+          position: 'top-right',
           autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
           draggable: true,
           progress: undefined,
+          className: 'custom-toast',
+          bodyClassName: 'custom-toast-body',
         });
-        break;
-      case 'info':
-        toast.info(message, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        break;
-      case 'warning':
-        toast.warning(message, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
-        break;
-      default:
-        toast(message, {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-        });
+      }
     }
-  };
+  }, [toastMessage, toastType]);  // Trigger effect when toastMessage or toastType changes
 
-  return (
-    <>
-      <ToastContainer />
-      {displayToast()}
-    </>
-  );
+  return null;  // No button needed, just return null since the toast is handled
 };
 
 export default CustomToast;

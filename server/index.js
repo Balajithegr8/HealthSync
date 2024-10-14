@@ -24,7 +24,7 @@ app.post('/register', async (req, res) => {
   const { fname,lname, email, password }  = req.body
   User.findOne({ email:email }).then(user => {
     if(user){
-      return res.json({ message: 'User already exists' })
+      return res.json({ message: 'User already exists' ,toastType:'error'})
     }
     const newUser = new User({
       fname,
@@ -33,7 +33,7 @@ app.post('/register', async (req, res) => {
       password
     })
     newUser.save()
-    return res.json({ message: 'User Created Successfully' })
+    return res.json({ message: '🎉 User Created Successfully Please login...' ,toastType:'success'})
   
 })
 })
@@ -44,15 +44,15 @@ app.post('/login',async (req, res) => {
   User.findOne({ email:email})
     .then(user => {
       if(user){
-        if(user.password === password){
-          return res.json({ message: 'Login Successful'})
-        }
-        else{
-          return res.json({ message: 'Login Failed' })
-        }
+            if(user.password === password){
+              return res.json({ message: '🎉 Login Successful! Redirecting to dashboard...',toastType:'success'})
+            }
+            else{
+              return res.json({ message: '❌ Login Failed. User does not exist.',toastType:'error' })
+            }
       }
       else{
-        return res.json({ message: 'User does not exist' }) }
+        return res.json({ message: '❌ Login Failed. Incorrect password.',toastType:'error' }) }
     })
   
 })
