@@ -3,12 +3,20 @@ import mongoose from 'mongoose'
 import cors from 'cors'
 import User from './models/user_models.js'
 import dotenv from "dotenv";
+import path from 'path'
+import { fileURLToPath } from 'url'
+
+//resolving dirname for es module
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express()
 app.use(cors())
 app.use(express.json())
+app.use(express.static(path.join(__dirname,'client/build')))
+app.get('*', (req, res) => res.sendFile(path.join(__dirname,'client/build/index.html')));
 dotenv.config();
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 5000
 
 mongoose.connect(process.env.MONGO_URL, {
   useNewUrlParser: true,
