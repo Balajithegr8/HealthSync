@@ -23,7 +23,7 @@ function LoginRegister() {
     }
 
     try {
-      const res = await fetch('http://localhost:3000/register', {
+      const res = await fetch('http://localhost:5000/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ function LoginRegister() {
     }
 
     try {
-      const res = await fetch('http://localhost:3000/login', {
+      const res = await fetch('http://localhost:5000/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

@@ -1,0 +1,19 @@
+services:
+  client:
+    build: client
+    ports:
+      - "3000:3000"
+    networks:
+      - health
+
+  server:
+    build: server
+    ports:
+      - "5000:5000"
+    networks:
+      - health
+
+networks:
+  health:
+    driver: bridge
+
