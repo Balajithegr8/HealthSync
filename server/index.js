@@ -33,7 +33,7 @@ app.post('/register', async (req, res) => {
       password
     })
     newUser.save()
-    return res.json({ message: '🎉 User Created Successfully Please login...' ,toastType:'success'})
+    return res.json({ message: '🎉 User Created Successfully! Redirecting to login...' ,toastType:'success'})
   
 })
 })
